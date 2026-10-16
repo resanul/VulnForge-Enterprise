@@ -151,3 +151,12 @@ def dashboard_view():
         "docs": "/docs",
         "api_v1": settings.API_V1_STR
     }
+
+@app.get("/app")
+@app.get("/app/{full_path:path}")
+def react_app_view():
+    react_index = os.path.join(STATIC_DIR, "react", "index.html")
+    if os.path.exists(react_index):
+        return FileResponse(react_index)
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
