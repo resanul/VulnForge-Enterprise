@@ -1,0 +1,17 @@
+module vulnforge 1.0;
+
+require {
+    type httpd_t;
+    type unreserved_port_t;
+    type var_lib_t;
+    class tcp_socket { name_connect name_bind };
+    class file { read write create open getattr };
+    class dir { read write add_name remove_name };
+}
+
+# Allow Nginx reverse proxy to connect to local FastAPI backend on port 8000
+allow httpd_t unreserved_port_t:tcp_socket name_connect;
+
+# Allow scanner worker to store evidence in /var/lib/vulnforge
+allow httpd_t var_lib_t:file { read write create open getattr };
+allow httpd_t var_lib_t:dir { read write add_name remove_name };

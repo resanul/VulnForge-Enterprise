@@ -1,0 +1,24 @@
+[Unit]
+Description=VulnForge Enterprise API & Web Server
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=vulnforge
+Group=vulnforge
+WorkingDirectory=/opt/vulnforge
+EnvironmentFile=/etc/vulnforge/vulnforge.env
+ExecStart=/usr/bin/python3 -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --workers 4
+Restart=always
+RestartSec=5s
+LimitNOFILE=65535
+
+# Systemd Hardening Directives
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

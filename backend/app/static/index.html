@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnForge Enterprise™ | Security Operations & Vulnerability Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        vuln: {
+                            critical: '#ef4444',
+                            high: '#f97316',
+                            medium: '#f59e0b',
+                            low: '#3b82f6',
+                            info: '#64748b',
+                            darkbg: '#0a0f1d',
+                            darkcard: '#111827',
+                            border: '#1f2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0f1d; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-vuln-darkbg text-slate-100 min-h-screen flex">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-vuln-darkcard border-r border-vuln-border flex flex-col justify-between shrink-0">
+        <div>
+            <!-- BRAND -->
+            <div class="h-16 flex items-center px-6 border-b border-vuln-border space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-600 via-indigo-500 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                    <span class="font-bold tracking-tight text-white text-base">VulnForge</span>
+                    <span class="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded ml-1 border border-indigo-500/30">ENTERPRISE</span>
+                </div>
+            </div>
+
+            <!-- NAVIGATION LINKS -->
+            <nav class="p-3 space-y-1 text-sm font-medium">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group bg-indigo-600/10 text-indigo-400 border border-indigo-500/20">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Dashboard
+                </button>
+                <button onclick="switchTab('assets')" id="nav-assets" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    Asset Inventory
+                </button>
+                <button onclick="switchTab('scans')" id="nav-scans" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Scan Center
+                </button>
+                <button onclick="switchTab('findings')" id="nav-findings" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Vulnerabilities
+                </button>
+                <button onclick="switchTab('compliance')" id="nav-compliance" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    Compliance Center
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Reporting Center
+                </button>
+                <button onclick="switchTab('remediation')" id="nav-remediation" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Remediation & SLA
+                </button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Administration
+                </button>
+            </nav>
+        </div>
+
+        <!-- USER FOOTER -->
+        <div class="p-4 border-t border-vuln-border">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-indigo-300">AD</div>
+                <div class="truncate">
+                    <p class="text-xs font-semibold text-white">Security Admin</p>
+                    <p class="text-[11px] text-slate-400 truncate">admin@vulnforge.internal</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- TOPBAR -->
+        <header class="h-16 bg-vuln-darkcard border-b border-vuln-border px-8 flex items-center justify-between sticky top-0 z-20">
+            <div class="flex items-center space-x-4">
+                <h1 id="page-title" class="text-lg font-bold text-white">Executive Security Dashboard</h1>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                    12 Engine Adapters Operational
+                </span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openLaunchModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-indigo-600/30 flex items-center space-x-2 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>New Scan</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="p-8 space-y-8">
+
+            <!-- TAB: DASHBOARD -->
+            <div id="tab-dashboard" class="tab-pane space-y-8">
+                <!-- METRIC CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-vuln-darkcard border border-vuln-border p-5 rounded-xl shadow-sm">
+                        <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Discovered Assets</span>
+                        <div id="stat-assets" class="text-3xl font-extrabold text-white mt-2">--</div>
+                        <p class="text-xs text-slate-400 mt-2">100% within approved target scope</p>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-5 rounded-xl shadow-sm">
+                        <span class="text-xs font-semibold uppercase text-slate-400 tracking-wider">Total Scans Executed</span>
+                        <div id="stat-scans" class="text-3xl font-extrabold text-white mt-2">--</div>
+                        <p class="text-xs text-emerald-400 mt-2 flex items-center">
+                            <span id="stat-active-scans" class="font-bold mr-1">0</span> Active Background Jobs
+                        </p>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-5 rounded-xl shadow-sm">
+                        <span class="text-xs font-semibold uppercase text-vuln-critical tracking-wider">Critical Vulnerabilities</span>
+                        <div id="stat-critical" class="text-3xl font-extrabold text-vuln-critical mt-2">--</div>
+                        <p class="text-xs text-slate-400 mt-2">Requires immediate remediation</p>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-5 rounded-xl shadow-sm">
+                        <span class="text-xs font-semibold uppercase text-indigo-400 tracking-wider">Critical Exposure Index</span>
+                        <div id="stat-risk" class="text-3xl font-extrabold text-indigo-400 mt-2">--</div>
+                        <p class="text-xs text-slate-400 mt-2">Weighted composite CVSS score</p>
+                    </div>
+                </div>
+
+                <!-- SEVERITY BREAKDOWN BARS -->
+                <div class="bg-vuln-darkcard border border-vuln-border p-6 rounded-xl space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Vulnerability Posture by Severity</h3>
+                    <div class="grid grid-cols-5 gap-4">
+                        <div class="p-4 rounded-lg bg-red-950/20 border border-red-500/20 text-center">
+                            <div class="text-xs font-semibold text-red-400">CRITICAL</div>
+                            <div id="bar-crit" class="text-2xl font-black text-red-500 mt-1">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-orange-950/20 border border-orange-500/20 text-center">
+                            <div class="text-xs font-semibold text-orange-400">HIGH</div>
+                            <div id="bar-high" class="text-2xl font-black text-orange-500 mt-1">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-amber-950/20 border border-amber-500/20 text-center">
+                            <div class="text-xs font-semibold text-amber-400">MEDIUM</div>
+                            <div id="bar-med" class="text-2xl font-black text-amber-500 mt-1">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-blue-950/20 border border-blue-500/20 text-center">
+                            <div class="text-xs font-semibold text-blue-400">LOW</div>
+                            <div id="bar-low" class="text-2xl font-black text-blue-500 mt-1">0</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-800/30 border border-slate-700/30 text-center">
+                            <div class="text-xs font-semibold text-slate-400">INFORMATIONAL</div>
+                            <div id="bar-info" class="text-2xl font-black text-slate-300 mt-1">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT SCANS TABLE -->
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden shadow-sm">
+                    <div class="px-6 py-4 border-b border-vuln-border flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white">Recent Security Scans</h3>
+                        <button onclick="loadDashboard()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium">Refresh</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                                <tr>
+                                    <th class="px-6 py-3">Job ID</th>
+                                    <th class="px-6 py-3">Scan Title</th>
+                                    <th class="px-6 py-3">Target</th>
+                                    <th class="px-6 py-3">Status</th>
+                                    <th class="px-6 py-3">Progress</th>
+                                    <th class="px-6 py-3">Findings</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-scans-table" class="divide-y divide-vuln-border text-slate-300">
+                                <tr><td colspan="6" class="px-6 py-4 text-center text-slate-500">Loading scan activity...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ASSETS -->
+            <div id="tab-assets" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Asset Inventory</h2>
+                        <p class="text-xs text-slate-400">Manage infrastructure IPs, subnets, domains, and scope authorizations</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="openImportCsvModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700 transition">Import CSV</button>
+                        <button onclick="openAddAssetModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow transition">Add Asset</button>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Name</th>
+                                <th class="px-6 py-3">Target Value</th>
+                                <th class="px-6 py-3">Criticality</th>
+                                <th class="px-6 py-3">Environment</th>
+                                <th class="px-6 py-3">Zone</th>
+                                <th class="px-6 py-3">Authorized</th>
+                                <th class="px-6 py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assets-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: SCANS -->
+            <div id="tab-scans" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Scan Center</h2>
+                        <p class="text-xs text-slate-400">Orchestrate credentialed and non-credentialed assessments across engines</p>
+                    </div>
+                    <button onclick="openLaunchModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow transition">Launch New Scan</button>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">ID</th>
+                                <th class="px-6 py-3">Title</th>
+                                <th class="px-6 py-3">Target</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Progress</th>
+                                <th class="px-6 py-3">Logs & Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scans-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: FINDINGS -->
+            <div id="tab-findings" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Vulnerability Findings</h2>
+                        <p class="text-xs text-slate-400">Normalized, deduplicated vulnerability findings with CVSS scoring and remediation</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <select id="filter-severity" onchange="loadFindings()" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-3 py-1.5 text-slate-200">
+                            <option value="">All Severities</option>
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                            <option value="Info">Info</option>
+                        </select>
+                        <select id="filter-status" onchange="loadFindings()" class="bg-slate-800 border border-slate-700 text-xs rounded-lg px-3 py-1.5 text-slate-200">
+                            <option value="">All Statuses</option>
+                            <option value="Open">Open</option>
+                            <option value="Remediated">Remediated</option>
+                            <option value="Accepted">Accepted Risk</option>
+                            <option value="FalsePositive">False Positive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Severity</th>
+                                <th class="px-6 py-3">Title</th>
+                                <th class="px-6 py-3">Asset</th>
+                                <th class="px-6 py-3">CVE / CWE</th>
+                                <th class="px-6 py-3">Port</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="findings-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: COMPLIANCE -->
+            <div id="tab-compliance" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Compliance & Baseline Center</h2>
+                        <p class="text-xs text-slate-400">CIS Benchmark, PCI-DSS, and OVAL configuration control auditing</p>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-white">CIS Benchmark Rules Evaluation</h3>
+                    <div id="compliance-results-container" class="space-y-3">
+                        <div class="text-xs text-slate-400">Loading compliance baseline records...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: REPORTS -->
+            <div id="tab-reports" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Reporting Center</h2>
+                        <p class="text-xs text-slate-400">Generate executive and technical reports in HTML, JSON, CSV, and PDF</p>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Report ID</th>
+                                <th class="px-6 py-3">Title</th>
+                                <th class="px-6 py-3">Type</th>
+                                <th class="px-6 py-3">Format</th>
+                                <th class="px-6 py-3">Created</th>
+                                <th class="px-6 py-3">Download</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: REMEDIATION -->
+            <div id="tab-remediation" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Remediation Tracking & SLAs</h2>
+                        <p class="text-xs text-slate-400">Assign vulnerabilities to owners, track remediation progress and verify closures</p>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Task Title</th>
+                                <th class="px-6 py-3">Finding</th>
+                                <th class="px-6 py-3">Priority</th>
+                                <th class="px-6 py-3">Assignee</th>
+                                <th class="px-6 py-3">Status</th>
+                                <th class="px-6 py-3">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="remediation-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: ADMIN -->
+            <div id="tab-admin" class="tab-pane hidden space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white">System Administration & Security Controls</h2>
+                    <p class="text-xs text-slate-400">Scanner Engine Registry, Scope Enforcer, Credential Vault, and Audit Trails</p>
+                </div>
+
+                <!-- ENGINES LIST -->
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Installed Scanner Engines & Capabilities</h3>
+                    <div id="engines-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="text-xs text-slate-400">Loading engine catalog...</div>
+                    </div>
+                </div>
+
+                <!-- APPROVED SCOPES -->
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl p-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Approved Target Scopes (Backend Enforced)</h3>
+                        <button onclick="addScopePrompt()" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded text-white">Add Scope</button>
+                    </div>
+                    <ul id="scopes-list" class="divide-y divide-vuln-border text-xs text-slate-300">
+                    </ul>
+                </div>
+
+                <!-- AUDIT LOGS -->
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Immutable Audit Trail</h3>
+                    <div class="overflow-x-auto max-h-80 overflow-y-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase sticky top-0">
+                                <tr>
+                                    <th class="px-4 py-2">Action</th>
+                                    <th class="px-4 py-2">User</th>
+                                    <th class="px-4 py-2">Resource</th>
+                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-2">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body" class="divide-y divide-vuln-border font-mono text-slate-300">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: LAUNCH SCAN -->
+    <div id="modal-launch" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-vuln-darkcard border border-vuln-border rounded-xl max-w-lg w-full p-6 space-y-5 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Launch Vulnerability Scan</h3>
+            <div class="space-y-4 text-xs">
+                <div>
+                    <label class="block text-slate-400 font-medium mb-1">Scan Job Title</label>
+                    <input id="scan-title" type="text" value="Target Security Assessment" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-slate-400 font-medium mb-1">Target Host / IP / URL / CIDR</label>
+                    <input id="scan-target" type="text" placeholder="e.g. 192.168.1.50 or scanme.nmap.org" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono">
+                </div>
+                <div>
+                    <label class="block text-slate-400 font-medium mb-1">Scan Profile</label>
+                    <select id="scan-profile" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200">
+                        <option value="1">Quick Discovery & Web Surface (network, tls, web)</option>
+                        <option value="2">Full Enterprise Audit (network, tls, web, compliance)</option>
+                        <option value="3">Credentialed Linux Server Audit (linux, compliance)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-4 border-t border-vuln-border">
+                <button onclick="closeLaunchModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-300">Cancel</button>
+                <button onclick="submitScan()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow">Launch Scan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD ASSET -->
+    <div id="modal-asset" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-vuln-darkcard border border-vuln-border rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white">Add Infrastructure Asset</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-400 mb-1">Asset Name</label>
+                    <input id="asset-name" type="text" placeholder="e.g. Prod-Web-Server-01" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                </div>
+                <div>
+                    <label class="block text-slate-400 mb-1">Target Value (IP / Domain)</label>
+                    <input id="asset-target" type="text" placeholder="e.g. 192.168.1.10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 font-mono">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-400 mb-1">Criticality</label>
+                        <select id="asset-crit" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 mb-1">Environment</label>
+                        <select id="asset-env" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200">
+                            <option value="production" selected>Production</option>
+                            <option value="staging">Staging</option>
+                            <option value="development">Development</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t border-vuln-border">
+                <button onclick="closeAddAssetModal()" class="px-4 py-2 bg-slate-800 text-xs font-semibold rounded-lg text-slate-300">Cancel</button>
+                <button onclick="submitAsset()" class="px-4 py-2 bg-indigo-600 text-xs font-semibold rounded-lg text-white">Save Asset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOG MODAL -->
+    <div id="modal-log" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-vuln-darkcard border border-vuln-border rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white">Scan Execution Log Stream</h3>
+                <button onclick="closeLogModal()" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+            <pre id="log-text" class="bg-black/90 p-4 rounded-lg text-emerald-400 text-xs font-mono max-h-96 overflow-y-auto whitespace-pre-wrap"></pre>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const API_BASE = '/api/v1';
+        let authToken = localStorage.getItem('vulnforge_token') || '';
+
+        // Auto authenticate as default admin if token absent
+        async function ensureAuth() {
+            if (!authToken) {
+                try {
+                    const res = await fetch(`${API_BASE}/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: 'admin', password: 'VulnForgeAdmin2026!' })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        authToken = data.access_token;
+                        localStorage.setItem('vulnforge_token', authToken);
+                    }
+                } catch (e) {
+                    console.error("Auth initialization failed:", e);
+                }
+            }
+        }
+
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            };
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-indigo-600/10', 'text-indigo-400', 'border', 'border-indigo-500/20');
+                el.classList.add('text-slate-300');
+            });
+
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) activeTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-indigo-600/10', 'text-indigo-400', 'border', 'border-indigo-500/20');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            const titles = {
+                dashboard: 'Executive Security Dashboard',
+                assets: 'Asset Inventory & Scopes',
+                scans: 'Scan Center & Engine Orchestrator',
+                findings: 'Vulnerability Management & Evidence',
+                compliance: 'Compliance Benchmarks & CIS Checks',
+                reports: 'Reporting Center',
+                remediation: 'Remediation Workflow & SLA Tracking',
+                admin: 'Platform Administration & Controls'
+            };
+            document.getElementById('page-title').innerText = titles[tabId] || 'VulnForge Enterprise';
+
+            if (tabId === 'dashboard') loadDashboard();
+            if (tabId === 'assets') loadAssets();
+            if (tabId === 'scans') loadScans();
+            if (tabId === 'findings') loadFindings();
+            if (tabId === 'compliance') loadCompliance();
+            if (tabId === 'reports') loadReports();
+            if (tabId === 'remediation') loadRemediation();
+            if (tabId === 'admin') loadAdmin();
+        }
+
+        async function loadDashboard() {
+            await ensureAuth();
+            try {
+                const res = await fetch(`${API_BASE}/system/dashboard-stats`, { headers: getHeaders() });
+                if (res.ok) {
+                    const stats = await res.json();
+                    document.getElementById('stat-assets').innerText = stats.assets_count;
+                    document.getElementById('stat-scans').innerText = stats.scans_count;
+                    document.getElementById('stat-active-scans').innerText = stats.active_scans_count;
+                    document.getElementById('stat-critical').innerText = stats.open_findings_by_severity.Critical;
+                    document.getElementById('stat-risk').innerText = stats.critical_exposure_index;
+
+                    document.getElementById('bar-crit').innerText = stats.open_findings_by_severity.Critical;
+                    document.getElementById('bar-high').innerText = stats.open_findings_by_severity.High;
+                    document.getElementById('bar-med').innerText = stats.open_findings_by_severity.Medium;
+                    document.getElementById('bar-low').innerText = stats.open_findings_by_severity.Low;
+                    document.getElementById('bar-info').innerText = stats.open_findings_by_severity.Info;
+                }
+
+                // Load recent scans
+                const sRes = await fetch(`${API_BASE}/scans/jobs?limit=5`, { headers: getHeaders() });
+                if (sRes.ok) {
+                    const jobs = await sRes.json();
+                    const tbody = document.getElementById('dashboard-scans-table');
+                    if (jobs.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-slate-500">No scans executed yet. Click "New Scan" to launch.</td></tr>';
+                    } else {
+                        tbody.innerHTML = jobs.map(j => `
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-slate-400">#${j.id}</td>
+                                <td class="px-6 py-3 font-semibold text-white">${j.title}</td>
+                                <td class="px-6 py-3 font-mono text-indigo-400">${j.target}</td>
+                                <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${j.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : (j.status === 'running' ? 'bg-indigo-500/20 text-indigo-400 animate-pulse' : 'bg-red-500/20 text-red-400')}">${j.status.toUpperCase()}</span></td>
+                                <td class="px-6 py-3">${j.progress}%</td>
+                                <td class="px-6 py-3 font-bold">${j.findings_count} findings</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            } catch (e) {
+                console.error("Dashboard error:", e);
+            }
+        }
+
+        async function loadAssets() {
+            const res = await fetch(`${API_BASE}/assets`, { headers: getHeaders() });
+            if (res.ok) {
+                const assets = await res.json();
+                const tbody = document.getElementById('assets-table-body');
+                tbody.innerHTML = assets.map(a => `
+                    <tr>
+                        <td class="px-6 py-3 font-semibold text-white">${a.name}</td>
+                        <td class="px-6 py-3 font-mono text-indigo-400">${a.target_value}</td>
+                        <td class="px-6 py-3 uppercase text-[11px] font-bold text-slate-400">${a.criticality}</td>
+                        <td class="px-6 py-3 text-slate-400">${a.environment}</td>
+                        <td class="px-6 py-3 text-slate-400">${a.network_zone}</td>
+                        <td class="px-6 py-3"><span class="text-emerald-400 font-bold">&#10003; Authorized</span></td>
+                        <td class="px-6 py-3">
+                            <button onclick="quickScan('${a.target_value}')" class="text-indigo-400 hover:text-indigo-300 font-semibold mr-3">Scan</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadScans() {
+            const res = await fetch(`${API_BASE}/scans/jobs`, { headers: getHeaders() });
+            if (res.ok) {
+                const jobs = await res.json();
+                const tbody = document.getElementById('scans-table-body');
+                tbody.innerHTML = jobs.map(j => `
+                    <tr>
+                        <td class="px-6 py-3 font-mono text-slate-400">#${j.id}</td>
+                        <td class="px-6 py-3 font-semibold text-white">${j.title}</td>
+                        <td class="px-6 py-3 font-mono text-indigo-400">${j.target}</td>
+                        <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${j.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-indigo-500/20 text-indigo-400'}">${j.status.toUpperCase()}</span></td>
+                        <td class="px-6 py-3">
+                            <div class="w-24 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-indigo-500 h-1.5" style="width: ${j.progress}%"></div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-3 space-x-2">
+                            <button onclick="viewLogs(${j.id})" class="text-slate-300 hover:text-white underline">Logs</button>
+                            ${j.status === 'completed' ? `<button onclick="generateReportPrompt(${j.id})" class="text-indigo-400 hover:text-indigo-300 font-semibold">Generate Report</button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadFindings() {
+            const sev = document.getElementById('filter-severity').value;
+            const status = document.getElementById('filter-status').value;
+            let url = `${API_BASE}/findings?limit=100`;
+            if (sev) url += `&severity=${sev}`;
+            if (status) url += `&status=${status}`;
+
+            const res = await fetch(url, { headers: getHeaders() });
+            if (res.ok) {
+                const findings = await res.json();
+                const tbody = document.getElementById('findings-table-body');
+                const colors = {
+                    Critical: 'bg-red-500/20 text-red-400 border border-red-500/30',
+                    High: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+                    Medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                    Low: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+                    Info: 'bg-slate-700/30 text-slate-400'
+                };
+                tbody.innerHTML = findings.map(f => `
+                    <tr>
+                        <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${colors[f.severity] || colors.Info}">${f.severity} (${f.cvss_score})</span></td>
+                        <td class="px-6 py-3 font-semibold text-white max-w-xs truncate" title="${f.title}">${f.title}</td>
+                        <td class="px-6 py-3 text-slate-400">${f.asset_name || f.target_value || 'Asset'}</td>
+                        <td class="px-6 py-3 font-mono text-slate-300">${f.cve || f.cwe || 'N/A'}</td>
+                        <td class="px-6 py-3 text-slate-400">${f.port ? `${f.port}/${f.protocol}` : 'Host'}</td>
+                        <td class="px-6 py-3"><span class="text-slate-300 font-semibold">${f.status}</span></td>
+                        <td class="px-6 py-3 space-x-2">
+                            <button onclick="remediateFinding(${f.id})" class="text-indigo-400 hover:text-indigo-300">Assign SLA</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadCompliance() {
+            const res = await fetch(`${API_BASE}/compliance/results`, { headers: getHeaders() });
+            if (res.ok) {
+                const results = await res.json();
+                const container = document.getElementById('compliance-results-container');
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="text-xs text-slate-500">No compliance evaluations recorded yet. Run an authenticated compliance scan.</div>';
+                } else {
+                    container.innerHTML = results.map(r => `
+                        <div class="p-3 bg-slate-900 border border-vuln-border rounded-lg flex items-center justify-between text-xs">
+                            <div>
+                                <span class="font-bold text-white">${r.rule_id}: ${r.title}</span>
+                                <p class="text-slate-400 mt-0.5">Framework: ${r.framework} | Observed: <code class="text-slate-300 font-mono">${r.observed_value}</code></p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded font-bold ${r.status === 'PASS' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">${r.status}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        async function loadReports() {
+            const res = await fetch(`${API_BASE}/reports`, { headers: getHeaders() });
+            if (res.ok) {
+                const reports = await res.json();
+                const tbody = document.getElementById('reports-table-body');
+                tbody.innerHTML = reports.map(r => `
+                    <tr>
+                        <td class="px-6 py-3 font-mono text-slate-400">#${r.id}</td>
+                        <td class="px-6 py-3 font-semibold text-white">${r.title}</td>
+                        <td class="px-6 py-3 uppercase text-slate-400">${r.report_type}</td>
+                        <td class="px-6 py-3 uppercase font-bold text-indigo-400">${r.report_format}</td>
+                        <td class="px-6 py-3 text-slate-400">${new Date(r.created_at * 1000).toLocaleString()}</td>
+                        <td class="px-6 py-3">
+                            <a href="${API_BASE}/reports/download/${r.id}" target="_blank" class="px-2.5 py-1 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 rounded font-semibold hover:bg-indigo-600/30">Download</a>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadRemediation() {
+            const res = await fetch(`${API_BASE}/remediation/tasks`, { headers: getHeaders() });
+            if (res.ok) {
+                const tasks = await res.json();
+                const tbody = document.getElementById('remediation-table-body');
+                tbody.innerHTML = tasks.map(t => `
+                    <tr>
+                        <td class="px-6 py-3 font-semibold text-white">${t.title}</td>
+                        <td class="px-6 py-3 text-slate-400 max-w-xs truncate">${t.finding_title}</td>
+                        <td class="px-6 py-3 font-bold ${t.priority === 'Urgent' ? 'text-red-400' : 'text-amber-400'}">${t.priority}</td>
+                        <td class="px-6 py-3 text-slate-300">${t.assignee}</td>
+                        <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-800 text-slate-200">${t.status}</span></td>
+                        <td class="px-6 py-3 text-slate-400">${t.due_date || '7 Days SLA'}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function loadAdmin() {
+            // Load Engines
+            const engRes = await fetch(`${API_BASE}/system/engines`, { headers: getHeaders() });
+            if (engRes.ok) {
+                const engines = await engRes.json();
+                document.getElementById('engines-container').innerHTML = engines.map(e => `
+                    <div class="p-4 bg-slate-900 border border-vuln-border rounded-lg text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-white text-sm">${e.name}</span>
+                            <span class="text-slate-400 font-mono">v${e.version}</span>
+                        </div>
+                        <p class="text-slate-400">Category: <span class="text-indigo-400 uppercase font-semibold">${e.category}</span> | Credentialed: ${e.is_credentialed ? 'Yes' : 'No'}</p>
+                        <div class="text-[11px] text-slate-500">
+                            <strong>Supported:</strong> ${e.supported_features.slice(0, 3).join(', ')}...
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Load Scopes
+            const scopeRes = await fetch(`${API_BASE}/system/scopes`, { headers: getHeaders() });
+            if (scopeRes.ok) {
+                const scopes = await scopeRes.json();
+                document.getElementById('scopes-list').innerHTML = scopes.map(s => `
+                    <li class="py-2.5 flex justify-between items-center">
+                        <div>
+                            <span class="font-mono font-bold text-emerald-400">${s.target_pattern}</span>
+                            <span class="text-slate-400 ml-2">(${s.description || 'Approved Scope'})</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 uppercase font-bold">Approved by ${s.approved_by}</span>
+                    </li>
+                `).join('');
+            }
+
+            // Load Audit Logs
+            const auditRes = await fetch(`${API_BASE}/system/audit-logs?limit=25`, { headers: getHeaders() });
+            if (auditRes.ok) {
+                const logs = await auditRes.json();
+                document.getElementById('audit-table-body').innerHTML = logs.map(l => `
+                    <tr>
+                        <td class="px-4 py-2 font-bold text-indigo-400">${l.action}</td>
+                        <td class="px-4 py-2 text-slate-400">${l.username}</td>
+                        <td class="px-4 py-2 text-slate-400">${l.resource_type || '-'}</td>
+                        <td class="px-4 py-2 font-bold ${l.status === 'SUCCESS' ? 'text-emerald-400' : 'text-red-400'}">${l.status}</td>
+                        <td class="px-4 py-2 text-slate-500">${new Date(l.created_at * 1000).toISOString()}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Action Handlers
+        function openLaunchModal() { document.getElementById('modal-launch').classList.remove('hidden'); }
+        function closeLaunchModal() { document.getElementById('modal-launch').classList.add('hidden'); }
+        function openAddAssetModal() { document.getElementById('modal-asset').classList.remove('hidden'); }
+        function closeAddAssetModal() { document.getElementById('modal-asset').classList.add('hidden'); }
+
+        async function submitScan() {
+            const title = document.getElementById('scan-title').value;
+            const target = document.getElementById('scan-target').value;
+            const profile_id = parseInt(document.getElementById('scan-profile').value);
+
+            if (!target) { alert("Please provide a target host/IP."); return; }
+
+            const res = await fetch(`${API_BASE}/scans/launch`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ title, target, profile_id })
+            });
+
+            if (res.ok) {
+                closeLaunchModal();
+                switchTab('scans');
+            } else {
+                const err = await res.json();
+                alert(`Scan Launch Failed: ${err.detail || 'Error'}`);
+            }
+        }
+
+        async function submitAsset() {
+            const name = document.getElementById('asset-name').value;
+            const target_value = document.getElementById('asset-target').value;
+            const criticality = document.getElementById('asset-crit').value;
+            const environment = document.getElementById('asset-env').value;
+
+            if (!target_value) { alert("Please provide a target value."); return; }
+
+            const res = await fetch(`${API_BASE}/assets`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ name: name || target_value, target_value, criticality, environment })
+            });
+
+            if (res.ok) {
+                closeAddAssetModal();
+                loadAssets();
+            } else {
+                const err = await res.json();
+                alert(`Error: ${err.detail || 'Could not save asset'}`);
+            }
+        }
+
+        async function viewLogs(jobId) {
+            const res = await fetch(`${API_BASE}/scans/jobs/${jobId}`, { headers: getHeaders() });
+            if (res.ok) {
+                const job = await res.json();
+                document.getElementById('log-text').innerText = job.log_output || 'No logs recorded yet.';
+                document.getElementById('modal-log').classList.remove('hidden');
+            }
+        }
+        function closeLogModal() { document.getElementById('modal-log').classList.add('hidden'); }
+
+        async function generateReportPrompt(jobId) {
+            const fmt = prompt("Select report format: html, json, csv, or pdf", "html");
+            if (!fmt) return;
+            const res = await fetch(`${API_BASE}/reports/generate`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ job_id: jobId, report_format: fmt.toLowerCase(), report_type: 'technical' })
+            });
+            if (res.ok) {
+                alert(`Report generated successfully in ${fmt.toUpperCase()} format!`);
+                switchTab('reports');
+            } else {
+                alert("Failed to generate report.");
+            }
+        }
+
+        function quickScan(target) {
+            document.getElementById('scan-target').value = target;
+            openLaunchModal();
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

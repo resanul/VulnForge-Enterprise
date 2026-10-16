@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vulnforge-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: vulnforge
+      POSTGRES_USER: vulnforge
+      POSTGRES_PASSWORD: vulnforge_secure_dev_pass_2026
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - vulnforge-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: vulnforge-redis
+    restart: always
+    networks:
+      - vulnforge-net
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: deployment/containers/Dockerfile.backend
+    container_name: vulnforge-api
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://vulnforge:vulnforge_secure_dev_pass_2026@db:5432/vulnforge
+      SECRET_KEY: enterprise-production-secret-key-replace-in-env-file
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - evidence_data:/app/evidence
+      - reports_data:/app/reports_export
+    networks:
+      - vulnforge-net
+
+volumes:
+  postgres_data:
+  evidence_data:
+  reports_data:
+
+networks:
+  vulnforge-net:
+    driver: bridge

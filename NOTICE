@@ -1,0 +1,14 @@
+VulnForge Enterprise
+Copyright 2026 VulnForge Enterprise Development Team
+
+This product includes software developed by the VulnForge Enterprise project.
+Licensed under the Apache License, Version 2.0.
+
+Third-Party Component Notices & Attributions:
+- Nmap Security Scanner (GPL v2 with custom exception terms) - integrated via external adapter execution.
+- ProjectDiscovery Nuclei (MIT License) - integrated via external schema & template runner adapter.
+- Aqua Security Trivy (Apache 2.0 License) - container image scanning adapter.
+- OWASP Zed Attack Proxy (ZAP) (Apache 2.0 License) - web application DAST adapter.
+- Mobile Security Framework (MobSF) (GPL v3) - isolated mobile artifact analysis adapter.
+- Paramiko SSH library (LGPL v2.1) - authenticated host auditing.
+- ReportLab PDF Generation (BSD License) - executive reporting engine.

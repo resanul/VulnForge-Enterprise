@@ -1,0 +1,23 @@
+framework: CIS-Windows-Server-2022
+description: CIS Microsoft Windows Server 2022 Benchmark v2.0.0
+rules:
+  - rule_id: CIS-WIN-2.3.1.5
+    title: Ensure SMBv1 protocol is disabled
+    severity: High
+    check_type: config_match
+    expected_value: "0"
+    remediation: Set HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\SMB1 to 0.
+
+  - rule_id: CIS-WIN-2.3.1.1
+    title: Ensure Remote Desktop Network Level Authentication (NLA) is required
+    severity: High
+    check_type: config_match
+    expected_value: "1"
+    remediation: Set HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\UserAuthentication to 1.
+
+  - rule_id: CIS-WIN-9.1.1
+    title: Ensure Windows Firewall Domain Profile is enabled
+    severity: Medium
+    check_type: config_match
+    expected_value: "True"
+    remediation: Set-NetFirewallProfile -Profile Domain -Enabled True.

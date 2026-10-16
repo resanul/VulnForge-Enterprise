@@ -1,0 +1,16 @@
+framework: CIS-Cisco-IOS-XE
+description: CIS Cisco IOS XE Benchmark v2.0.0
+rules:
+  - rule_id: CIS-NET-1.1
+    title: Ensure Telnet is disabled on VTY lines
+    severity: High
+    check_type: config_match
+    expected_value: "transport input ssh"
+    remediation: Configure 'transport input ssh' under line vty 0 15.
+
+  - rule_id: CIS-NET-2.1
+    title: Ensure SNMPv1/v2c default community strings are removed
+    severity: High
+    check_type: config_match
+    expected_value: "snmp-v3"
+    remediation: Remove public and private community strings and configure SNMPv3 authPriv.

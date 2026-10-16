@@ -1,0 +1,23 @@
+[Unit]
+Description=VulnForge Enterprise Background Scanner Worker
+After=network.target postgresql.service vulnforge-backend.service
+Wants=vulnforge-backend.service
+
+[Service]
+Type=simple
+User=vulnforge
+Group=vulnforge
+WorkingDirectory=/opt/vulnforge
+EnvironmentFile=/etc/vulnforge/vulnforge.env
+ExecStart=/usr/bin/python3 -m backend.app.tasks.worker
+Restart=always
+RestartSec=10s
+LimitNOFILE=65535
+
+# Systemd Hardening Directives
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

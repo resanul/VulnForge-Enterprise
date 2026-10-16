@@ -1,0 +1,30 @@
+framework: CIS-Linux-v2.0
+description: CIS Distribution-Independent Linux Security Benchmark
+rules:
+  - rule_id: CIS-5.2.1
+    title: Ensure SSH PermitRootLogin is disabled
+    severity: High
+    check_type: config_match
+    expected_value: "PermitRootLogin no"
+    remediation: Edit /etc/ssh/sshd_config and set PermitRootLogin no, then restart sshd.
+
+  - rule_id: CIS-5.2.2
+    title: Ensure SSH Protocol version 2 is enforced
+    severity: High
+    check_type: config_match
+    expected_value: "Protocol 2"
+    remediation: Ensure OpenSSH enforces Protocol 2.
+
+  - rule_id: CIS-3.5.1
+    title: Ensure host firewall is active
+    severity: Medium
+    check_type: config_match
+    expected_value: "active"
+    remediation: Execute systemctl enable --now firewalld or ufw enable.
+
+  - rule_id: CIS-1.1.21
+    title: Ensure sticky bit is set on world-writable directories
+    severity: Low
+    check_type: boolean
+    expected_value: "true"
+    remediation: Execute chmod +t <directory>.
