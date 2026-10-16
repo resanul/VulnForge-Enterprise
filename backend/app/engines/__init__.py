@@ -13,23 +13,33 @@ from backend.app.engines.mobile_scanner import MobileStaticAnalysisEngine
 from backend.app.engines.compliance_engine import CompliancePolicyEngine
 from backend.app.engines.nuclei_adapter import NucleiTemplateAdapterEngine
 
-_ENGINES: Dict[str, BaseScannerEngine] = {
-    "network": NetworkDiscoveryEngine(),
-    "tls": TLSCheckerEngine(),
-    "web": WebAppScannerEngine(),
-    "linux": LinuxCredentialedScannerEngine(),
-    "windows": WindowsCredentialedScannerEngine(),
-    "network_device": NetworkDeviceAuditorEngine(),
-    "database": DatabaseSecurityEngine(),
-    "container": ContainerSecurityEngine(),
-    "cloud": CloudSecurityEngine(),
-    "mobile": MobileStaticAnalysisEngine(),
-    "compliance": CompliancePolicyEngine(),
-    "templates": NucleiTemplateAdapterEngine()
+_ENGINE_CLASSES = {
+    "network": NetworkDiscoveryEngine,
+    "tls": TLSCheckerEngine,
+    "web": WebAppScannerEngine,
+    "linux": LinuxCredentialedScannerEngine,
+    "windows": WindowsCredentialedScannerEngine,
+    "network_device": NetworkDeviceAuditorEngine,
+    "database": DatabaseSecurityEngine,
+    "container": ContainerSecurityEngine,
+    "cloud": CloudSecurityEngine,
+    "mobile": MobileStaticAnalysisEngine,
+    "compliance": CompliancePolicyEngine,
+    "templates": NucleiTemplateAdapterEngine
 }
 
+_ENGINES: Dict[str, BaseScannerEngine] = {}
+
 def get_engine(category: str) -> BaseScannerEngine:
-    return _ENGINES.get(category, _ENGINES["network"])
+    if category not in _ENGINES:
+        cls = _ENGINE_CLASSES.get(category, NetworkDiscoveryEngine)
+        _ENGINES[category] = cls()
+    return _ENGINES[category]
 
 def get_all_engine_metadata() -> List[Dict[str, Any]]:
-    return [engine.get_metadata() for engine in _ENGINES.values()]
+    results = []
+    for cat, cls in _ENGINE_CLASSES.items():
+        if cat not in _ENGINES:
+            _ENGINES[cat] = cls()
+        results.append(_ENGINES[cat].get_metadata())
+    return results

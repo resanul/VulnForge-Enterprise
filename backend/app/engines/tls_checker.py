@@ -69,14 +69,14 @@ class TLSCheckerEngine(BaseScannerEngine):
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE  # inspect even invalid/self-signed certs
 
-        cert_dict = None
+        raw_der_cert = None
         cipher_info = None
         tls_version_str = None
 
         try:
             with socket.create_connection((host, port), timeout=4.0) as sock:
                 with context.wrap_socket(sock, server_hostname=host) as ssock:
-                    cert_dict = ssock.getpeercert(binary_form=False)
+                    raw_der_cert = ssock.getpeercert(binary_form=True)
                     cipher_info = ssock.cipher()
                     tls_version_str = ssock.version()
         except ssl.SSLError as e:
@@ -100,20 +100,26 @@ class TLSCheckerEngine(BaseScannerEngine):
                 log_callback(f"[INFO] Port {port} not reachable for TLS inspection: {e}")
             return findings
 
-        # 1. Analyze Certificate Validity & Expiration
-        if cert_dict:
-            not_after_str = cert_dict.get('notAfter')
-            if not_after_str:
-                # Format: 'May 10 12:00:00 2026 GMT'
-                try:
-                    expiry_date = datetime.datetime.strptime(not_after_str, '%b %d %H:%M:%S %Y %Z')
-                    now_date = datetime.datetime.utcnow()
+        # 1. Analyze Certificate Validity, Expiration & Cryptographic Strength
+        if raw_der_cert:
+            try:
+                from cryptography import x509
+                from cryptography.hazmat.backends import default_backend
+                cert = x509.load_der_x509_certificate(raw_der_cert, default_backend())
+
+                # Check Expiration
+                expiry_date = getattr(cert, "not_valid_after_utc", None) or getattr(cert, "not_valid_after", None)
+                if expiry_date:
+                    if getattr(expiry_date, "tzinfo", None) is not None:
+                        now_date = datetime.datetime.now(datetime.timezone.utc)
+                    else:
+                        now_date = datetime.datetime.utcnow()
                     remaining_days = (expiry_date - now_date).days
 
                     if remaining_days < 0:
                         findings.append(NormalizedFinding(
                             title=f"Expired TLS Certificate ({abs(remaining_days)} days expired)",
-                            description=f"The TLS certificate for {host} on port {port} expired on {not_after_str}.",
+                            description=f"The TLS certificate for {host} on port {port} expired on {expiry_date.strftime('%Y-%m-%d %H:%M:%S UTC')}.",
                             severity=SeverityLevel.HIGH,
                             cvss_score=7.4,
                             cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
@@ -122,24 +128,61 @@ class TLSCheckerEngine(BaseScannerEngine):
                             detection_method="tls-cert-check",
                             affected_component=f"TLS-Cert:{port}",
                             port=port,
-                            evidence=f"Certificate expired on {not_after_str}. Current days overdue: {abs(remaining_days)}",
+                            evidence=f"Certificate expired on {expiry_date}. Current days overdue: {abs(remaining_days)}",
                             remediation="Renew and install an active TLS certificate immediately."
                         ))
                     elif remaining_days <= 15:
                         findings.append(NormalizedFinding(
                             title=f"TLS Certificate Expiring Soon ({remaining_days} days remaining)",
-                            description=f"The TLS certificate for {host} on port {port} will expire in {remaining_days} days ({not_after_str}).",
+                            description=f"The TLS certificate for {host} on port {port} will expire in {remaining_days} days ({expiry_date.strftime('%Y-%m-%d %H:%M:%S UTC')}).",
                             severity=SeverityLevel.MEDIUM,
                             cvss_score=4.0,
                             confidence=ConfidenceLevel.CONFIRMED,
                             detection_method="tls-cert-check",
                             affected_component=f"TLS-Cert:{port}",
                             port=port,
-                            evidence=f"Certificate expires on {not_after_str} ({remaining_days} days remaining).",
+                            evidence=f"Certificate expires on {expiry_date} ({remaining_days} days remaining).",
                             remediation="Schedule automated renewal of the TLS certificate prior to expiration."
                         ))
-                except Exception:
-                    pass
+
+                # Check Signature Algorithm
+                sig_algo = getattr(cert.signature_hash_algorithm, "name", "").lower()
+                if sig_algo in ["md5", "sha1"]:
+                    findings.append(NormalizedFinding(
+                        title=f"Insecure Certificate Signature Algorithm ({sig_algo.upper()})",
+                        description=f"The certificate presented by {host}:{port} uses deprecated hash algorithm {sig_algo.upper()}, vulnerable to collision attacks.",
+                        severity=SeverityLevel.HIGH if sig_algo == "md5" else SeverityLevel.MEDIUM,
+                        cvss_score=7.4 if sig_algo == "md5" else 5.9,
+                        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+                        cwe="CWE-328",
+                        confidence=ConfidenceLevel.CONFIRMED,
+                        detection_method="tls-cert-check",
+                        affected_component=f"TLS-Cert:{port}",
+                        port=port,
+                        evidence=f"Signature algorithm: {sig_algo.upper()}",
+                        remediation="Re-issue the certificate with SHA-256 or SHA-384 signature hashing."
+                    ))
+
+                # Check Self-Signed
+                if cert.issuer == cert.subject:
+                    findings.append(NormalizedFinding(
+                        title="Self-Signed TLS/SSL Certificate Detected",
+                        description=f"The server {host}:{port} presented a self-signed certificate (Issuer matches Subject). Browsers and API clients will reject this certificate.",
+                        severity=SeverityLevel.MEDIUM,
+                        cvss_score=5.9,
+                        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+                        cwe="CWE-295",
+                        confidence=ConfidenceLevel.CONFIRMED,
+                        detection_method="tls-cert-check",
+                        affected_component=f"TLS-Cert:{port}",
+                        port=port,
+                        evidence=f"Issuer: {cert.issuer.rfc4514_string()}",
+                        remediation="Replace the self-signed certificate with one issued by a trusted public Certificate Authority or internal enterprise PKI."
+                    ))
+
+            except Exception as e:
+                if log_callback:
+                    log_callback(f"[WARN] Error decoding x509 DER certificate: {e}")
 
         # 2. Check Strict Verification with System CA Trust Store
         verify_context = ssl.create_default_context()

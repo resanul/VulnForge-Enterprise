@@ -53,36 +53,48 @@
 
             <!-- NAVIGATION LINKS -->
             <nav class="p-3 space-y-1 text-sm font-medium">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group bg-indigo-600/10 text-indigo-400 border border-indigo-500/20">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group bg-indigo-600/10 text-indigo-400 border border-indigo-500/20">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                     Dashboard
                 </button>
-                <button onclick="switchTab('assets')" id="nav-assets" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                    Asset Inventory
+                <button onclick="switchTab('assets')" id="nav-assets" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    Asset Management
                 </button>
-                <button onclick="switchTab('scans')" id="nav-scans" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <button onclick="switchTab('scans')" id="nav-scans" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     Scan Center
                 </button>
-                <button onclick="switchTab('findings')" id="nav-findings" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    Vulnerabilities
+                <button onclick="switchTab('findings')" id="nav-findings" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Vulnerability Management
                 </button>
-                <button onclick="switchTab('compliance')" id="nav-compliance" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                <button onclick="switchTab('webapp')" id="nav-webapp" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                    Web Application Security
+                </button>
+                <button onclick="switchTab('networksec')" id="nav-networksec" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                    Network & Server Security
+                </button>
+                <button onclick="switchTab('netdevice')" id="nav-netdevice" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                    Network Device Auditing
+                </button>
+                <button onclick="switchTab('compliance')" id="nav-compliance" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                     Compliance Center
                 </button>
-                <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <button onclick="switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     Reporting Center
                 </button>
-                <button onclick="switchTab('remediation')" id="nav-remediation" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <button onclick="switchTab('remediation')" id="nav-remediation" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Remediation & SLA
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="nav-item w-full flex items-center px-3 py-2.5 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <button onclick="switchTab('admin')" id="nav-admin" class="nav-item w-full flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     Administration
                 </button>
             </nav>
@@ -112,6 +124,11 @@
                 </span>
             </div>
             <div class="flex items-center space-x-3">
+                <!-- THEME TOGGLE BUTTON -->
+                <button onclick="toggleTheme()" id="theme-toggle-btn" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 border border-slate-700 transition" title="Toggle Light/Dark Theme">
+                    <svg id="sun-icon" class="w-4 h-4 hidden text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="moon-icon" class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
                 <button onclick="openLaunchModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-lg shadow-indigo-600/30 flex items-center space-x-2 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <span>New Scan</span>
@@ -303,6 +320,159 @@
                             </tr>
                         </thead>
                         <tbody id="findings-table-body" class="divide-y divide-vuln-border text-slate-300">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: WEB APPLICATION SECURITY -->
+            <div id="tab-webapp" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Web Application & API Security</h2>
+                        <p class="text-xs text-slate-400">Passive header analysis, CORS reflection checks, OpenAPI inspection, and sensitive endpoint probing</p>
+                    </div>
+                    <button onclick="openLaunchModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow transition">New Web Scan</button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Monitored Web Targets</span>
+                        <div id="webapp-target-count" class="text-2xl font-bold text-white mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-amber-400 uppercase">Missing Security Headers</span>
+                        <div id="webapp-header-issues" class="text-2xl font-bold text-amber-400 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-rose-400 uppercase">Sensitive Paths Leaks</span>
+                        <div id="webapp-path-issues" class="text-2xl font-bold text-rose-500 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-indigo-400 uppercase">API Endpoints Mapped</span>
+                        <div id="webapp-api-count" class="text-2xl font-bold text-indigo-400 mt-1">--</div>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-vuln-border flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white">Web Security Findings & Endpoint Inventory</h3>
+                        <button onclick="loadWebApp()" class="text-xs text-indigo-400 hover:text-indigo-300">Refresh</button>
+                    </div>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Severity</th>
+                                <th class="px-6 py-3">Issue Title</th>
+                                <th class="px-6 py-3">Component / URL</th>
+                                <th class="px-6 py-3">Method</th>
+                                <th class="px-6 py-3">Evidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="webapp-table-body" class="divide-y divide-vuln-border text-slate-300">
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Loading web security posture...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: NETWORK & SERVER SECURITY -->
+            <div id="tab-networksec" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Network & Server Security</h2>
+                        <p class="text-xs text-slate-400">TCP port discovery, service banner inventory, Linux SSH audits, and Windows WinRM baselines</p>
+                    </div>
+                    <button onclick="openLaunchModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow transition">New Network Scan</button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Open Ports Discovered</span>
+                        <div id="netsec-ports-count" class="text-2xl font-bold text-white mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-rose-400 uppercase">Cleartext Services (Telnet/FTP)</span>
+                        <div id="netsec-cleartext-count" class="text-2xl font-bold text-rose-500 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-emerald-400 uppercase">Linux Authenticated Hosts</span>
+                        <div id="netsec-linux-count" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-indigo-400 uppercase">Windows Hosts Audited</span>
+                        <div id="netsec-win-count" class="text-2xl font-bold text-indigo-400 mt-1">--</div>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-vuln-border flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white">Network Service Exposure & Host Vulnerabilities</h3>
+                        <button onclick="loadNetworkSec()" class="text-xs text-indigo-400 hover:text-indigo-300">Refresh</button>
+                    </div>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Severity</th>
+                                <th class="px-6 py-3">Service / Vulnerability</th>
+                                <th class="px-6 py-3">Asset Host</th>
+                                <th class="px-6 py-3">Port / Proto</th>
+                                <th class="px-6 py-3">Detection Method</th>
+                            </tr>
+                        </thead>
+                        <tbody id="netsec-table-body" class="divide-y divide-vuln-border text-slate-300">
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Loading network service exposure...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB: NETWORK DEVICE AUDITING -->
+            <div id="tab-netdevice" class="tab-pane hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Network Device & Appliance Auditing</h2>
+                        <p class="text-xs text-slate-400">Cisco IOS, Juniper JunOS, Fortinet FortiOS, and Arista EOS security baseline validation</p>
+                    </div>
+                    <button onclick="openLaunchModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg text-white shadow transition">New Appliance Scan</button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-slate-400 uppercase">Audited Appliances</span>
+                        <div id="netdev-device-count" class="text-2xl font-bold text-white mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-rose-400 uppercase">Telnet VTY Misconfigs</span>
+                        <div id="netdev-telnet-count" class="text-2xl font-bold text-rose-500 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-amber-400 uppercase">Legacy SNMP Community</span>
+                        <div id="netdev-snmp-count" class="text-2xl font-bold text-amber-400 mt-1">--</div>
+                    </div>
+                    <div class="bg-vuln-darkcard border border-vuln-border p-4 rounded-xl">
+                        <span class="text-xs font-semibold text-emerald-400 uppercase">Centralized Syslog Sync</span>
+                        <div id="netdev-syslog-count" class="text-2xl font-bold text-emerald-400 mt-1">--</div>
+                    </div>
+                </div>
+
+                <div class="bg-vuln-darkcard border border-vuln-border rounded-xl overflow-hidden">
+                    <div class="px-6 py-4 border-b border-vuln-border flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white">Appliance Configuration Audit Findings</h3>
+                        <button onclick="loadNetDevice()" class="text-xs text-indigo-400 hover:text-indigo-300">Refresh</button>
+                    </div>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/60 text-slate-400 font-semibold uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Severity</th>
+                                <th class="px-6 py-3">Benchmark Rule / Finding</th>
+                                <th class="px-6 py-3">Device / Stanza</th>
+                                <th class="px-6 py-3">Evidence</th>
+                                <th class="px-6 py-3">Remediation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="netdev-table-body" class="divide-y divide-vuln-border text-slate-300">
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">Loading network appliance audit data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -540,6 +710,23 @@
             };
         }
 
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                localStorage.setItem('vulnforge_theme', 'light');
+                if (sunIcon) sunIcon.classList.remove('hidden');
+                if (moonIcon) moonIcon.classList.add('hidden');
+            } else {
+                htmlEl.classList.add('dark');
+                localStorage.setItem('vulnforge_theme', 'dark');
+                if (sunIcon) sunIcon.classList.add('hidden');
+                if (moonIcon) moonIcon.classList.remove('hidden');
+            }
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(el => {
@@ -558,13 +745,16 @@
 
             const titles = {
                 dashboard: 'Executive Security Dashboard',
-                assets: 'Asset Inventory & Scopes',
-                scans: 'Scan Center & Engine Orchestrator',
-                findings: 'Vulnerability Management & Evidence',
-                compliance: 'Compliance Benchmarks & CIS Checks',
-                reports: 'Reporting Center',
+                assets: 'Asset Management & Approved Scopes',
+                scans: 'Scan Center & Multi-Engine Orchestrator',
+                findings: 'Unified Vulnerability Management & Risk Intelligence',
+                webapp: 'Web Application & API Security Center',
+                networksec: 'Network Discovery & Server Security Posture',
+                netdevice: 'Network Device & Appliance Configuration Auditing',
+                compliance: 'Compliance Benchmarks & CIS Technical Controls',
+                reports: 'Centralized Reporting Center',
                 remediation: 'Remediation Workflow & SLA Tracking',
-                admin: 'Platform Administration & Controls'
+                admin: 'Platform Administration & System Controls'
             };
             document.getElementById('page-title').innerText = titles[tabId] || 'VulnForge Enterprise';
 
@@ -572,6 +762,9 @@
             if (tabId === 'assets') loadAssets();
             if (tabId === 'scans') loadScans();
             if (tabId === 'findings') loadFindings();
+            if (tabId === 'webapp') loadWebApp();
+            if (tabId === 'networksec') loadNetworkSec();
+            if (tabId === 'netdevice') loadNetDevice();
             if (tabId === 'compliance') loadCompliance();
             if (tabId === 'reports') loadReports();
             if (tabId === 'remediation') loadRemediation();
@@ -699,6 +892,124 @@
                         </td>
                     </tr>
                 `).join('');
+            }
+        }
+
+        async function loadWebApp() {
+            const res = await fetch(`${API_BASE}/findings?limit=100`, { headers: getHeaders() });
+            if (res.ok) {
+                const allFindings = await res.json();
+                const webFindings = allFindings.filter(f => f.detection_method.includes('http') || f.detection_method.includes('cors') || f.detection_method.includes('endpoint') || f.title.toLowerCase().includes('http') || f.title.toLowerCase().includes('web') || f.title.toLowerCase().includes('cors') || f.title.toLowerCase().includes('header') || f.title.toLowerCase().includes('tls'));
+                
+                const headerIssues = webFindings.filter(f => f.title.toLowerCase().includes('header') || f.title.toLowerCase().includes('hsts') || f.title.toLowerCase().includes('csp') || f.title.toLowerCase().includes('x-frame')).length;
+                const pathIssues = webFindings.filter(f => f.title.toLowerCase().includes('exposed') || f.title.toLowerCase().includes('actuator') || f.title.toLowerCase().includes('git') || f.title.toLowerCase().includes('.env')).length;
+                const apiCount = webFindings.filter(f => f.title.toLowerCase().includes('api') || f.title.toLowerCase().includes('swagger') || f.title.toLowerCase().includes('openapi')).length;
+
+                document.getElementById('webapp-target-count').innerText = [...new Set(webFindings.map(f => f.asset_name || f.target_value))].length || '--';
+                document.getElementById('webapp-header-issues').innerText = headerIssues;
+                document.getElementById('webapp-path-issues').innerText = pathIssues;
+                document.getElementById('webapp-api-count').innerText = apiCount;
+
+                const tbody = document.getElementById('webapp-table-body');
+                if (webFindings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">No web security findings identified. Launch a web scan to inspect endpoints.</td></tr>';
+                } else {
+                    const colors = {
+                        Critical: 'bg-red-500/20 text-red-400 border border-red-500/30',
+                        High: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+                        Medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                        Low: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+                        Info: 'bg-slate-700/30 text-slate-400'
+                    };
+                    tbody.innerHTML = webFindings.map(f => `
+                        <tr>
+                            <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${colors[f.severity] || colors.Info}">${f.severity}</span></td>
+                            <td class="px-6 py-3 font-semibold text-white">${f.title}</td>
+                            <td class="px-6 py-3 font-mono text-slate-300">${f.affected_component}</td>
+                            <td class="px-6 py-3 text-slate-400">${f.detection_method}</td>
+                            <td class="px-6 py-3 text-slate-300 truncate max-w-xs" title="${f.evidence}">${f.evidence || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        async function loadNetworkSec() {
+            const res = await fetch(`${API_BASE}/findings?limit=100`, { headers: getHeaders() });
+            if (res.ok) {
+                const allFindings = await res.json();
+                const netFindings = allFindings.filter(f => f.detection_method.includes('tcp') || f.detection_method.includes('ssh') || f.detection_method.includes('winrm') || f.detection_method.includes('remote') || f.port || f.title.toLowerCase().includes('port') || f.title.toLowerCase().includes('ssh') || f.title.toLowerCase().includes('windows'));
+
+                const openPorts = netFindings.filter(f => f.title.toLowerCase().includes('open tcp port')).length;
+                const cleartext = netFindings.filter(f => f.title.toLowerCase().includes('telnet') || f.title.toLowerCase().includes('ftp') || f.title.toLowerCase().includes('cleartext')).length;
+                const linuxHosts = netFindings.filter(f => f.detection_method.includes('ssh') || f.title.toLowerCase().includes('linux')).length;
+                const winHosts = netFindings.filter(f => f.detection_method.includes('winrm') || f.title.toLowerCase().includes('windows')).length;
+
+                document.getElementById('netsec-ports-count').innerText = openPorts;
+                document.getElementById('netsec-cleartext-count').innerText = cleartext;
+                document.getElementById('netsec-linux-count').innerText = linuxHosts;
+                document.getElementById('netsec-win-count').innerText = winHosts;
+
+                const tbody = document.getElementById('netsec-table-body');
+                if (netFindings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">No network security findings identified yet. Launch a network discovery scan.</td></tr>';
+                } else {
+                    const colors = {
+                        Critical: 'bg-red-500/20 text-red-400 border border-red-500/30',
+                        High: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+                        Medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                        Low: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+                        Info: 'bg-slate-700/30 text-slate-400'
+                    };
+                    tbody.innerHTML = netFindings.map(f => `
+                        <tr>
+                            <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${colors[f.severity] || colors.Info}">${f.severity}</span></td>
+                            <td class="px-6 py-3 font-semibold text-white">${f.title}</td>
+                            <td class="px-6 py-3 text-slate-300">${f.asset_name || f.target_value || 'Host'}</td>
+                            <td class="px-6 py-3 font-mono text-slate-400">${f.port ? `${f.port}/${f.protocol}` : 'General'}</td>
+                            <td class="px-6 py-3 text-slate-400">${f.detection_method}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        async function loadNetDevice() {
+            const res = await fetch(`${API_BASE}/findings?limit=100`, { headers: getHeaders() });
+            if (res.ok) {
+                const allFindings = await res.json();
+                const devFindings = allFindings.filter(f => f.detection_method.includes('device') || f.affected_component.toLowerCase().includes('vty') || f.affected_component.toLowerCase().includes('snmp') || f.affected_component.toLowerCase().includes('router') || f.title.toLowerCase().includes('cisco') || f.title.toLowerCase().includes('router') || f.title.toLowerCase().includes('switch') || f.title.toLowerCase().includes('snmp') || f.title.toLowerCase().includes('syslog') || f.title.toLowerCase().includes('ntp'));
+
+                const telnetCount = devFindings.filter(f => f.title.toLowerCase().includes('telnet')).length;
+                const snmpCount = devFindings.filter(f => f.title.toLowerCase().includes('snmp')).length;
+                const syslogCount = devFindings.filter(f => f.title.toLowerCase().includes('syslog') || f.title.toLowerCase().includes('ntp')).length;
+
+                document.getElementById('netdev-device-count').innerText = [...new Set(devFindings.map(f => f.asset_name || f.target_value))].length || '--';
+                document.getElementById('netdev-telnet-count').innerText = telnetCount;
+                document.getElementById('netdev-snmp-count').innerText = snmpCount;
+                document.getElementById('netdev-syslog-count').innerText = syslogCount;
+
+                const tbody = document.getElementById('netdev-table-body');
+                if (devFindings.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-slate-500">No network device audit findings recorded. Run an appliance configuration audit.</td></tr>';
+                } else {
+                    const colors = {
+                        Critical: 'bg-red-500/20 text-red-400 border border-red-500/30',
+                        High: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+                        Medium: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                        Low: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+                        Info: 'bg-slate-700/30 text-slate-400'
+                    };
+                    tbody.innerHTML = devFindings.map(f => `
+                        <tr>
+                            <td class="px-6 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${colors[f.severity] || colors.Info}">${f.severity}</span></td>
+                            <td class="px-6 py-3 font-semibold text-white">${f.title}</td>
+                            <td class="px-6 py-3 font-mono text-slate-300">${f.affected_component}</td>
+                            <td class="px-6 py-3 text-slate-400 truncate max-w-xs" title="${f.evidence}">${f.evidence || 'N/A'}</td>
+                            <td class="px-6 py-3 text-slate-400 truncate max-w-xs" title="${f.remediation}">${f.remediation || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
             }
         }
 

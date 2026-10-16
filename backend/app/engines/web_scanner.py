@@ -250,13 +250,34 @@ class WebAppScannerEngine(BaseScannerEngine):
                 try:
                     resp = await client.get(test_url)
                     if resp.status_code == 200 and len(resp.content) > 0:
-                        # Extra validation: check if it's an actual hit vs generic 404 page returned with status 200
-                        content_sample = resp.text[:200]
+                        content_type = resp.headers.get("content-type", "").lower()
+                        content_sample = resp.text[:300]
                         is_valid = True
-                        if path == "/.git/HEAD" and "ref: refs/" not in content_sample:
-                            is_valid = False
-                        elif path == "/.env" and "=" not in content_sample:
-                            is_valid = False
+
+                        # Check if response is generic HTML fallback (e.g. Single Page Application routing)
+                        is_html = "text/html" in content_type or "<html" in content_sample.lower() or "<!doctype html" in content_sample.lower()
+
+                        if path == "/.git/HEAD":
+                            if "ref: refs/" not in content_sample:
+                                is_valid = False
+                        elif path == "/.env":
+                            if "=" not in content_sample or is_html:
+                                is_valid = False
+                        elif path in ["/swagger.json", "/openapi.json"]:
+                            if is_html or ("openapi" not in content_sample.lower() and "swagger" not in content_sample.lower() and "{" not in content_sample):
+                                is_valid = False
+                        elif path.startswith("/actuator"):
+                            if is_html or ("{" not in content_sample and "status" not in content_sample.lower()):
+                                is_valid = False
+                        elif path == "/phpinfo.php":
+                            if "php version" not in content_sample.lower() and "zend" not in content_sample.lower():
+                                is_valid = False
+                        elif path == "/server-status":
+                            if "apache server status" not in content_sample.lower():
+                                is_valid = False
+                        elif path == "/robots.txt":
+                            if is_html or ("user-agent:" not in content_sample.lower() and "disallow:" not in content_sample.lower()):
+                                is_valid = False
 
                         if is_valid:
                             findings.append(NormalizedFinding(

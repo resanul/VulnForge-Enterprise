@@ -55,5 +55,6 @@ def db_session():
     try:
         yield session
     finally:
+        session.rollback()
         session.close()
-        Base.metadata.drop_all(bind=engine)
+        engine.dispose()

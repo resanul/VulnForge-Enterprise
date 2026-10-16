@@ -7,16 +7,19 @@ from backend.app.core.config import settings
 from backend.app.core.encryption import decrypt_secret, sanitize_log_output
 from backend.app.core.scope import validate_scope
 from backend.app.db.base import SessionLocal
-from backend.app.db.models import ScanJob, Asset, ScanProfile, Credential, ApprovedScope
+from backend.app.db.models import ScanJob, Asset, ScanProfile, Credential, ApprovedScope, ComplianceResult
 from backend.app.engines import get_engine
 from backend.app.normalization.normalizer import normalize_and_store_findings
 
-# Global active task cancellation flags: job_id -> asyncio.Event
+# Global active task cancellation flags and task references
 _CANCELLATION_FLAGS: Dict[int, asyncio.Event] = {}
+_ACTIVE_TASKS: Dict[int, asyncio.Task] = {}
 
 def cancel_job(job_id: int):
     if job_id in _CANCELLATION_FLAGS:
         _CANCELLATION_FLAGS[job_id].set()
+    if job_id in _ACTIVE_TASKS:
+        _ACTIVE_TASKS[job_id].cancel()
 
 class ScanJobExecutor:
     def __init__(self, job_id: int):
@@ -29,7 +32,10 @@ class ScanJobExecutor:
         sanitized = sanitize_log_output(message)
         line = f"[{now_str}] {sanitized}\n"
         job.log_output = (job.log_output or "") + line
-        db.commit()
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
 
     async def execute(self):
         db: Session = SessionLocal()
@@ -75,9 +81,10 @@ class ScanJobExecutor:
                 # Find or create by target
                 asset = db.query(Asset).filter(Asset.target_value == job.target).first()
                 if not asset:
+                    t_type = "cidr" if "/" in job.target else ("ip" if "." in job.target and not any(c.isalpha() for c in job.target) else "hostname")
                     asset = Asset(
-                        name=f"Host-{job.target}",
-                        target_type="ip" if "." in job.target and "/" not in job.target else "hostname",
+                        name=f"Asset-{job.target}",
+                        target_type=t_type,
                         target_value=job.target,
                         authorized=True
                     )
@@ -117,14 +124,18 @@ class ScanJobExecutor:
                         self._append_log(db, job, f"[WARN] Failed to decrypt attached credential: {e}")
 
             all_findings = []
+            collected_facts = {}
             progress_step = 70 // max(len(categories), 1)
 
             # 5. Run each requested engine module
             for cat in categories:
-                if self.cancel_event.is_set():
+                # Check for cancellation before each engine
+                db.refresh(job)
+                if self.cancel_event.is_set() or job.status == "cancelled":
                     job.status = "cancelled"
                     job.finished_at = int(time.time())
                     self._append_log(db, job, "[WARN] Scan cancelled by operator.")
+                    db.commit()
                     return
 
                 engine = get_engine(cat)
@@ -132,7 +143,8 @@ class ScanJobExecutor:
 
                 options = {
                     "credentials": credentials_data,
-                    "ports": profile.custom_ports if profile and profile.ports_mode == "custom" else None
+                    "ports": profile.custom_ports if profile and profile.ports_mode == "custom" else None,
+                    "system_facts": collected_facts
                 }
 
                 def log_cb(msg):
@@ -145,10 +157,51 @@ class ScanJobExecutor:
                     )
                     all_findings.extend(engine_findings)
                     self._append_log(db, job, f"[INFO] Engine '{cat}' finished: {len(engine_findings)} findings identified.")
+
+                    # If compliance engine was evaluated, persist compliance audit records
+                    if cat == "compliance" and hasattr(engine, "evaluate_rules"):
+                        # Record compliance results into db
+                        from backend.app.engines.compliance_engine import ComplianceRule
+                        rules_to_eval = [
+                            ComplianceRule(rule_id="CIS-5.2.1", benchmark="CIS-Linux-v2.0", title="Ensure SSH PermitRootLogin is disabled", description="Direct root login over SSH must be prohibited.", severity="High", expected_value="no", check_type="config_match", remediation="Set 'PermitRootLogin no' in /etc/ssh/sshd_config."),
+                            ComplianceRule(rule_id="CIS-5.2.2", benchmark="CIS-Linux-v2.0", title="Ensure SSH Protocol version 2 is enforced", description="Legacy SSHv1 contains protocol flaws.", severity="High", expected_value="2", check_type="config_match", remediation="Ensure OpenSSH enforces Protocol 2."),
+                            ComplianceRule(rule_id="CIS-3.5.1", benchmark="CIS-Linux-v2.0", title="Ensure host firewall is active", description="Host firewall must filter incoming traffic.", severity="Medium", expected_value="active", check_type="config_match", remediation="Execute 'systemctl enable --now firewalld'."),
+                            ComplianceRule(rule_id="CIS-1.1.21", benchmark="CIS-Linux-v2.0", title="Ensure sticky bit on world-writable directories", description="Sticky bit prevents deletion of files by non-owners.", severity="Low", expected_value="true", check_type="boolean", remediation="Apply sticky bit: chmod +t <directory>")
+                        ]
+                        eval_results = engine.evaluate_rules(rules_to_eval, collected_facts)
+                        for item in eval_results:
+                            db.add(ComplianceResult(
+                                job_id=job.id,
+                                asset_id=asset.id,
+                                framework=item.benchmark,
+                                rule_id=item.rule_id,
+                                title=item.title,
+                                description=item.description,
+                                status=item.status,
+                                severity=item.severity,
+                                observed_value=item.observed_value,
+                                expected_value=item.expected_value,
+                                remediation=item.remediation,
+                                created_at=int(time.time())
+                            ))
+                        db.commit()
+
+                except asyncio.CancelledError:
+                    self._append_log(db, job, "[WARN] Engine task received cancellation signal.")
+                    raise
                 except asyncio.TimeoutError:
                     self._append_log(db, job, f"[ERROR] Engine '{cat}' timed out after {timeout_sec}s.")
                 except Exception as e:
                     self._append_log(db, job, f"[ERROR] Engine '{cat}' encountered error: {str(e)}")
+
+                # Check cancellation again after engine run
+                db.refresh(job)
+                if self.cancel_event.is_set() or job.status == "cancelled":
+                    job.status = "cancelled"
+                    job.finished_at = int(time.time())
+                    self._append_log(db, job, "[WARN] Scan cancelled by operator.")
+                    db.commit()
+                    return
 
                 job.progress = min(job.progress + progress_step, 90)
                 db.commit()
@@ -165,6 +218,15 @@ class ScanJobExecutor:
                 if sev_key in severity_counts:
                     severity_counts[sev_key] += 1
 
+            # Final check that job was not cancelled before marking completed
+            db.refresh(job)
+            if self.cancel_event.is_set() or job.status == "cancelled":
+                job.status = "cancelled"
+                job.finished_at = int(time.time())
+                self._append_log(db, job, "[WARN] Scan cancelled by operator before completion.")
+                db.commit()
+                return
+
             job.summary_stats = json.dumps(severity_counts)
             job.status = "completed"
             job.progress = 100
@@ -172,6 +234,17 @@ class ScanJobExecutor:
             self._append_log(db, job, f"[SUCCESS] Scan completed successfully. Summary: {job.summary_stats}")
             db.commit()
 
+        except asyncio.CancelledError:
+            db.rollback()
+            try:
+                job = db.query(ScanJob).filter(ScanJob.id == self.job_id).first()
+                if job:
+                    job.status = "cancelled"
+                    job.finished_at = int(time.time())
+                    self._append_log(db, job, "[WARN] Scan execution task cancelled by operator.")
+                    db.commit()
+            except Exception:
+                pass
         except Exception as e:
             db.rollback()
             try:
@@ -190,5 +263,11 @@ class ScanJobExecutor:
 
 async def dispatch_scan_job(job_id: int):
     executor = ScanJobExecutor(job_id)
-    # Launch in asyncio background task
-    asyncio.create_task(executor.execute())
+    task = asyncio.create_task(executor.execute())
+    _ACTIVE_TASKS[job_id] = task
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+    finally:
+        _ACTIVE_TASKS.pop(job_id, None)

@@ -41,13 +41,22 @@ class NetworkDiscoveryEngine(BaseScannerEngine):
     def is_available(self) -> bool:
         return True
 
-    def _extract_host(self, target: str) -> str:
+    def _extract_hosts(self, target: str) -> List[str]:
         cleaned = target.strip()
         if cleaned.startswith("http://") or cleaned.startswith("https://"):
-            return urlparse(cleaned).hostname or cleaned
+            return [urlparse(cleaned).hostname or cleaned]
+        if "/" in cleaned:
+            import ipaddress
+            try:
+                net = ipaddress.ip_network(cleaned, strict=False)
+                # Safely expand subnet hosts up to 64 hosts per scan batch to avoid resource starvation
+                hosts = [str(ip) for ip in list(net.hosts())[:64]]
+                return hosts if hosts else [str(net.network_address)]
+            except Exception:
+                return [cleaned]
         if ":" in cleaned and not cleaned.startswith("[") and "/" not in cleaned:
-            return cleaned.split(":")[0]
-        return cleaned
+            return [cleaned.split(":")[0]]
+        return [cleaned]
 
     async def _probe_port(self, host: str, port: int, timeout: float = 1.5) -> Optional[Dict[str, Any]]:
         loop = asyncio.get_event_loop()
@@ -78,6 +87,7 @@ class NetworkDiscoveryEngine(BaseScannerEngine):
 
             service = PORT_SERVICE_MAP.get(port, f"unknown-{port}")
             return {
+                "host": host,
                 "port": port,
                 "protocol": "tcp",
                 "state": "open",
@@ -95,7 +105,7 @@ class NetworkDiscoveryEngine(BaseScannerEngine):
         log_callback: Optional[Any] = None
     ) -> List[NormalizedFinding]:
         options = options or {}
-        host = self._extract_host(target)
+        hosts = self._extract_hosts(target)
         ports = options.get("ports", DEFAULT_PORTS)
         if isinstance(ports, str):
             try:
@@ -104,35 +114,40 @@ class NetworkDiscoveryEngine(BaseScannerEngine):
                 ports = DEFAULT_PORTS
 
         if log_callback:
-            log_callback(f"[INFO] Launching network discovery probe on {host} across {len(ports)} ports...")
+            log_callback(f"[INFO] Launching network discovery probe on {len(hosts)} target host(s) across {len(ports)} ports...")
 
-        tasks = [self._probe_port(host, port) for port in ports]
+        tasks = []
+        for h in hosts:
+            for port in ports:
+                tasks.append(self._probe_port(h, port))
+
         results = await asyncio.gather(*tasks)
         open_services = [r for r in results if r is not None]
 
         findings: List[NormalizedFinding] = []
 
         if log_callback:
-            log_callback(f"[INFO] Discovered {len(open_services)} open TCP ports on {host}.")
+            log_callback(f"[INFO] Discovered {len(open_services)} open TCP ports across target scope.")
 
         # Analyze discovered ports for vulnerabilities and security posture
         for s in open_services:
+            h = s.get("host", target)
             p = s["port"]
             banner = s["banner"]
             service_name = s["service"]
 
             # Info: Service Exposure Inventory
             findings.append(NormalizedFinding(
-                title=f"Open TCP Port: {p}/{service_name}",
-                description=f"A network service was identified on port {p} ({service_name}). Latency: {s['latency_ms']}ms. Banner: {banner[:100] if banner else 'None'}",
+                title=f"Open TCP Port: {p}/{service_name} on {h}",
+                description=f"A network service was identified on {h}:{p} ({service_name}). Latency: {s['latency_ms']}ms. Banner: {banner[:100] if banner else 'None'}",
                 severity=SeverityLevel.INFO,
                 cvss_score=0.0,
                 confidence=ConfidenceLevel.CONFIRMED,
                 detection_method="tcp-connect",
-                affected_component=f"{service_name}:{p}",
+                affected_component=f"{service_name}:{h}:{p}",
                 port=p,
                 protocol="tcp",
-                evidence=f"Service responded on TCP port {p}. Banner: {banner}",
+                evidence=f"Service responded on host {h} TCP port {p}. Banner: {banner}",
                 remediation="Verify whether this service is business-justified. If not required, close the port or restrict access via firewall rules."
             ))
 

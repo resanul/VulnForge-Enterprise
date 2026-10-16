@@ -81,7 +81,25 @@ class CloudSecurityEngine(BaseScannerEngine):
 
         findings: List[NormalizedFinding] = []
 
-        # Standard CIS Cloud Foundations Checks
+        credentials = options.get("credentials")
+        mock_rules = options.get("security_group_rules", [])
+
+        if not credentials and not mock_rules:
+            findings.append(NormalizedFinding(
+                title=f"{provider.upper()} Cloud Assessment Incomplete: Missing IAM Credentials",
+                description=f"Cloud configuration audit requested for {target}, but no cloud IAM credentials (AWS access key / role ARN) were provided.",
+                severity=SeverityLevel.INFO,
+                cvss_score=0.0,
+                confidence=ConfidenceLevel.CONFIRMED,
+                detection_method="cloud-auth-check",
+                is_credentialed=False,
+                affected_component=f"Cloud-{provider.upper()}",
+                evidence="No cloud credentials attached to scan profile.",
+                remediation="Attach read-only Cloud Audit credentials (e.g. AWS SecurityAudit policy) to the scan profile."
+            ))
+            return findings
+
+        # Standard CIS Cloud Foundations Checks (when audit credentials or simulation rules present)
         findings.append(NormalizedFinding(
             title="AWS Root Account MFA Enabled",
             description="Verified that root account has hardware or virtual MFA device configured. CIS AWS Foundations 1.5 requirement.",
@@ -109,7 +127,6 @@ class CloudSecurityEngine(BaseScannerEngine):
         ))
 
         # Check any mock or provided security groups
-        mock_rules = options.get("security_group_rules", [])
         if mock_rules:
             findings.extend(self.audit_security_group_rules(mock_rules))
 
