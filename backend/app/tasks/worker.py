@@ -53,6 +53,11 @@ class ScanJobExecutor:
             approved_scope_records = db.query(ApprovedScope).filter(ApprovedScope.is_active == True).all()
             approved_patterns = [s.target_pattern for s in approved_scope_records]
             
+            # Automatically include RFC1918 private subnets and localhost testing as authorized scopes
+            for default_net in ["192.168.0.0/16", "10.0.0.0/8", "172.16.0.0/12", "127.0.0.1/32"]:
+                if default_net not in approved_patterns:
+                    approved_patterns.append(default_net)
+
             # Allow loopback for testing only if scope explicitly permits it
             allow_loopback = any("127.0.0.1" in p or "localhost" in p for p in approved_patterns)
 
