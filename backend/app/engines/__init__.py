@@ -12,20 +12,43 @@ from backend.app.engines.cloud_scanner import CloudSecurityEngine
 from backend.app.engines.mobile_scanner import MobileStaticAnalysisEngine
 from backend.app.engines.compliance_engine import CompliancePolicyEngine
 from backend.app.engines.nuclei_adapter import NucleiTemplateAdapterEngine
+from backend.app.engines.greenbone_adapter import GreenboneGMPAdapterEngine
+from backend.app.engines.zap_adapter import OWASPZapAdapterEngine
+from backend.app.engines.ad_auditor import ActiveDirectoryAuditorEngine
+from backend.app.engines.malware_indicator_scanner import MalwareIndicatorScannerEngine
+from backend.app.engines.emerging_tech_scanner import EmergingTechnologyScannerEngine
 
 _ENGINE_CLASSES = {
+    # Core Network & Discovery
     "network": NetworkDiscoveryEngine,
+    "greenbone": GreenboneGMPAdapterEngine,
     "tls": TLSCheckerEngine,
+    
+    # Web & DAST
     "web": WebAppScannerEngine,
+    "zap": OWASPZapAdapterEngine,
+    "templates": NucleiTemplateAdapterEngine,
+    
+    # Server & Host Infrastructure
     "linux": LinuxCredentialedScannerEngine,
     "windows": WindowsCredentialedScannerEngine,
     "network_device": NetworkDeviceAuditorEngine,
+    
+    # Identity & Directory
+    "active_directory": ActiveDirectoryAuditorEngine,
+    
+    # Data & Supply Chain
     "database": DatabaseSecurityEngine,
     "container": ContainerSecurityEngine,
     "cloud": CloudSecurityEngine,
     "mobile": MobileStaticAnalysisEngine,
+    
+    # Compliance & Malware Indicators
     "compliance": CompliancePolicyEngine,
-    "templates": NucleiTemplateAdapterEngine
+    "malware_indicators": MalwareIndicatorScannerEngine,
+    
+    # Emerging Tech & AI/LLM
+    "emerging_tech": EmergingTechnologyScannerEngine
 }
 
 _ENGINES: Dict[str, BaseScannerEngine] = {}
