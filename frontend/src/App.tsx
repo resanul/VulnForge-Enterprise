@@ -14,7 +14,9 @@ import {
   Moon, 
   ShieldCheck,
   ExternalLink,
-  Activity
+  Activity,
+  Cloud,
+  Bot
 } from 'lucide-react';
 import { Dashboard } from './pages/Dashboard';
 import { Assets } from './pages/Assets';
@@ -23,6 +25,8 @@ import { Findings } from './pages/Findings';
 import { WebSecurity } from './pages/WebSecurity';
 import { NetworkSecurity } from './pages/NetworkSecurity';
 import { NetworkDevices } from './pages/NetworkDevices';
+import { CloudContainerSecurity } from './pages/CloudContainerSecurity';
+import { IdentityAndAISecurity } from './pages/IdentityAndAISecurity';
 import { Compliance } from './pages/Compliance';
 import { Reports } from './pages/Reports';
 import { Admin } from './pages/Admin';
@@ -35,6 +39,8 @@ type TabKey =
   | 'webapp'
   | 'network'
   | 'devices'
+  | 'cloud_container'
+  | 'identity_ai'
   | 'compliance'
   | 'reports'
   | 'admin';
@@ -54,6 +60,8 @@ const TABS: TabItem[] = [
   { id: 'webapp', label: 'Web & API Security', icon: Globe },
   { id: 'network', label: 'Network & Host Security', icon: Network },
   { id: 'devices', label: 'Network Device Auditing', icon: Router },
+  { id: 'cloud_container', label: 'Cloud & Container Security', icon: Cloud },
+  { id: 'identity_ai', label: 'Identity & AI/LLM Security', icon: Bot },
   { id: 'compliance', label: 'Compliance & CIS Baselines', icon: CheckSquare },
   { id: 'reports', label: 'Reporting & Analytics', icon: FileText },
   { id: 'admin', label: 'Administration & System', icon: Settings },
@@ -230,6 +238,8 @@ export default function App() {
           {activeTab === 'webapp' && <WebSecurity />}
           {activeTab === 'network' && <NetworkSecurity />}
           {activeTab === 'devices' && <NetworkDevices />}
+          {activeTab === 'cloud_container' && <CloudContainerSecurity />}
+          {activeTab === 'identity_ai' && <IdentityAndAISecurity />}
           {activeTab === 'compliance' && <Compliance />}
           {activeTab === 'reports' && <Reports />}
           {activeTab === 'admin' && <Admin />}
