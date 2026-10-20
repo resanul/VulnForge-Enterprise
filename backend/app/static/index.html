@@ -683,31 +683,38 @@
         const API_BASE = '/api/v1';
         let authToken = localStorage.getItem('vulnforge_token') || '';
 
-        // Auto authenticate as default admin if token absent
+        async function refreshAuth() {
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'VulnForgeAdmin2026!' })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    authToken = data.access_token;
+                    localStorage.setItem('vulnforge_token', authToken);
+                    return authToken;
+                }
+            } catch (e) {
+                console.error("Auth refresh failed:", e);
+            }
+            return '';
+        }
+
+        // Auto authenticate as default admin
         async function ensureAuth() {
             if (!authToken) {
-                try {
-                    const res = await fetch(`${API_BASE}/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: 'admin', password: 'VulnForgeAdmin2026!' })
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        authToken = data.access_token;
-                        localStorage.setItem('vulnforge_token', authToken);
-                    }
-                } catch (e) {
-                    console.error("Auth initialization failed:", e);
-                }
+                await refreshAuth();
             }
         }
 
         function getHeaders() {
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            };
+            const h = { 'Content-Type': 'application/json' };
+            if (authToken) {
+                h['Authorization'] = `Bearer ${authToken}`;
+            }
+            return h;
         }
 
         function toggleTheme() {
@@ -1135,11 +1142,21 @@
 
             if (!target) { alert("Please provide a target host/IP."); return; }
 
-            const res = await fetch(`${API_BASE}/scans/launch`, {
+            await ensureAuth();
+            let res = await fetch(`${API_BASE}/scans/launch`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({ title, target, profile_id })
             });
+
+            if (res.status === 401) {
+                await refreshAuth();
+                res = await fetch(`${API_BASE}/scans/launch`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ title, target, profile_id })
+                });
+            }
 
             if (res.ok) {
                 closeLaunchModal();
@@ -1158,11 +1175,21 @@
 
             if (!target_value) { alert("Please provide a target value."); return; }
 
-            const res = await fetch(`${API_BASE}/assets`, {
+            await ensureAuth();
+            let res = await fetch(`${API_BASE}/assets`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({ name: name || target_value, target_value, criticality, environment })
             });
+
+            if (res.status === 401) {
+                await refreshAuth();
+                res = await fetch(`${API_BASE}/assets`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ name: name || target_value, target_value, criticality, environment })
+                });
+            }
 
             if (res.ok) {
                 closeAddAssetModal();
