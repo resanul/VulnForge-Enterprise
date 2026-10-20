@@ -1,16 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { Server, Plus, ShieldCheck, Search } from 'lucide-react';
+import { Server, Plus, ShieldCheck, Search, X } from 'lucide-react';
 
 export const Assets: React.FC = () => {
   const [assets, setAssets] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form State
+  const [name, setName] = useState('');
+  const [targetType, setTargetType] = useState('ip');
+  const [targetValue, setTargetValue] = useState('');
+  const [criticality, setCriticality] = useState('high');
+  const [environment, setEnvironment] = useState('production');
+  const [networkZone, setNetworkZone] = useState('corporate');
+
+  const fetchAssets = async () => {
+    try {
+      const res = await fetch('/api/v1/assets');
+      const data = await res.json();
+      setAssets(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/v1/assets')
-      .then(res => res.json())
-      .then(data => setAssets(Array.isArray(data) ? data : []))
-      .catch(err => console.error(err));
+    fetchAssets();
   }, []);
+
+  const handleAddAsset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !targetValue) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/v1/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          target_type: targetType,
+          target_value: targetValue.trim(),
+          criticality,
+          environment,
+          network_zone: networkZone,
+          authorized: true
+        })
+      });
+      if (res.ok) {
+        setIsModalOpen(false);
+        setName('');
+        setTargetValue('');
+        await fetchAssets();
+      } else {
+        const err = await res.json();
+        alert(`Failed to add asset: ${err.detail || 'Target authorization failed'}`);
+      }
+    } catch (e: any) {
+      alert(`Network error: ${e.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const criticalityClass: Record<string, string> = {
     critical: 'bg-red-500/15 text-red-500 dark:text-red-400 border border-red-500/30',
@@ -47,8 +98,8 @@ export const Assets: React.FC = () => {
             />
           </div>
           <button 
-            className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
-            onClick={() => alert("Asset registration modal: Use API endpoint /api/v1/assets to register new targets.")}
+            onClick={() => setIsModalOpen(true)}
+            className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-xs font-semibold text-white rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Asset</span>
@@ -104,6 +155,126 @@ export const Assets: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add Asset Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center space-x-2">
+                <Server className="w-5 h-5 text-indigo-500" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">Register Target Asset</h3>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddAsset} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Asset Display Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                  placeholder="e.g. Production Application Gateway"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Target Type</label>
+                  <select
+                    value={targetType}
+                    onChange={e => setTargetType(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="ip">Single IP Address</option>
+                    <option value="hostname">Domain / FQDN</option>
+                    <option value="cidr">CIDR Subnet Range</option>
+                    <option value="url">Web Application URL</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Target Value</label>
+                  <input
+                    type="text"
+                    value={targetValue}
+                    onChange={e => setTargetValue(e.target.value)}
+                    required
+                    placeholder="e.g. 192.168.10.15"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Criticality</label>
+                  <select
+                    value={criticality}
+                    onChange={e => setCriticality(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Environment</label>
+                  <select
+                    value={environment}
+                    onChange={e => setEnvironment(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="production">Production</option>
+                    <option value="staging">Staging</option>
+                    <option value="development">Internal Lab</option>
+                    <option value="dmz">DMZ / Perimeter</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Network Zone</label>
+                  <select
+                    value={networkZone}
+                    onChange={e => setNetworkZone(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="corporate">Corporate LAN</option>
+                    <option value="dmz">DMZ</option>
+                    <option value="cloud_vpc">Cloud VPC</option>
+                    <option value="external">External / WAN</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 text-white font-semibold rounded-xl shadow-md transition disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Registering...' : 'Register Asset'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
