@@ -97,7 +97,7 @@ def validate_scope(
             return False, f"Target IP {ip} is loopback address, which is prohibited without lab test mode."
 
         for restricted_net in DISALLOWED_METADATA_IPS:
-            if not allow_loopback_for_testing and restricted_net == ipaddress.ip_network("127.0.0.0/8"):
+            if allow_loopback_for_testing and restricted_net in [ipaddress.ip_network("127.0.0.0/8"), ipaddress.ip_network("::1/128")]:
                 continue
             if ip in restricted_net:
                 return False, f"Target IP {ip} falls into restricted infrastructure/metadata range ({restricted_net}). Execution blocked."

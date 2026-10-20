@@ -93,6 +93,8 @@ def create_profile(
     )
     return profile
 
+@router.get("", response_model=List[ScanJobResponse])
+@router.get("/", response_model=List[ScanJobResponse])
 @router.get("/jobs", response_model=List[ScanJobResponse])
 def list_scan_jobs(
     status: Optional[str] = None,
@@ -176,6 +178,7 @@ async def launch_scan(
         findings_count=0
     )
 
+@router.get("/{id}", response_model=ScanJobResponse)
 @router.get("/jobs/{id}", response_model=ScanJobResponse)
 def get_scan_job(
     id: int,
@@ -203,6 +206,7 @@ def get_scan_job(
         findings_count=len(job.findings)
     )
 
+@router.post("/{id}/cancel")
 @router.post("/jobs/{id}/cancel")
 def cancel_scan_job(
     id: int,
